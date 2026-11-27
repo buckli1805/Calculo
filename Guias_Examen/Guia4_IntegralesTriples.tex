@@ -1,0 +1,252 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{multicol}
+
+\definecolor{azul}{RGB}{40,70,150}
+\definecolor{verde}{RGB}{30,120,70}
+\definecolor{rojo}{RGB}{170,40,40}
+\definecolor{gris}{RGB}{90,90,90}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\newtcolorbox{resumen}[1][]{colback=azul!5,colframe=azul,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{receta}[1][Receta]{colback=verde!6,colframe=verde,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{ojo}[1][Errores típicos]{colback=rojo!5,colframe=rojo,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{ejemplo}[1][]{colback=white,colframe=gris,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.6pt}
+
+\newcounter{ejer}
+\newcommand{\ejercicio}[2][]{\refstepcounter{ejer}\par\medskip\noindent\textbf{Ejercicio \theejer.}\ \textit{\small #2}\ifx&#1&\else\hfill{\small\textcolor{gris}{[#1]}}\fi\par}
+\newcommand{\sol}[1]{\par\medskip\noindent\textbf{Ejercicio #1.}\ }
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dA}{\,dA}
+\newcommand{\dV}{\,dV}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+\fancyhead[L]{\small Cálculo para Ciencia de Datos -- IMT2220}
+\fancyhead[R]{\small Guía 4: Integrales triples}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Guía 4: Integrales triples,\\[2pt] coordenadas cilíndricas y esféricas}\\[6pt]
+{\large Cálculo para Ciencia de Datos (IMT2220) -- Preparación Examen 2026-2}\\[3pt]
+{\small Material: Clases 21 y 22 \quad$\cdot$\quad Ayudantías 9 y 10 \quad$\cdot$\quad Exámenes 2022-1 y 2023-1}
+\end{center}
+
+\section{Resumen}
+
+\begin{resumen}[Integral triple y Fubini]
+Se define con sumas de Riemann sobre cajas pequeñas $\Delta V=\Delta x\,\Delta y\,\Delta z$. Si $f$ es continua en la caja $B$, vale \textbf{Fubini en cualquiera de los 6 órdenes}. Con $f=1$ se obtiene el volumen; con $f$ densidad de masa, la masa; con $f$ densidad de probabilidad, la probabilidad.
+\end{resumen}
+
+\begin{resumen}[Regiones elementales]
+\textbf{Respecto al plano $xy$:} $T=\{(x,y)\in R,\ k_1(x,y)\le z\le k_2(x,y)\}$, y
+\[
+\iiint_T f\dV=\iint_R\Big(\int_{k_1(x,y)}^{k_2(x,y)}f\,dz\Big)dA .
+\]
+Igual respecto a $yz$ (se integra primero $x$) o a $xz$ (primero $y$).
+
+\textbf{Receta:} proyectar el sólido sobre un plano para obtener $R$; para cada punto de $R$, ver entre qué dos superficies se mueve la variable restante. Los límites de cada integral dependen solo de las variables que \emph{todavía no} se integran.
+Conviene elegir el plano según la geometría: si el eje de un cilindro es el eje $y$, se proyecta sobre $xz$.
+\end{resumen}
+
+\begin{resumen}[Cambio de variables en $\R^3$]
+\[
+\iiint_D f\,dx\,dy\,dz=\iiint_{D^*}f\big(T(u,v,w)\big)\left|\frac{\partial(x,y,z)}{\partial(u,v,w)}\right|du\,dv\,dw .
+\]
+Igual que en 2D, se puede usar el jacobiano de la inversa: $\frac{\partial(x,y,z)}{\partial(u,v,w)}=1\big/\frac{\partial(u,v,w)}{\partial(x,y,z)}$.
+\end{resumen}
+
+\begin{resumen}[Cilíndricas y esféricas]
+\begin{minipage}[t]{0.47\textwidth}
+\textbf{Cilíndricas} (simetría respecto a un eje):
+\[
+x=r\cos\theta,\ y=r\sin\theta,\ z=z
+\]
+\[
+\boxed{dV=r\,dr\,d\theta\,dz}
+\]
+Para cilindros, paraboloides ($z=r^2$) y conos ($z=r$). Son polares en el plano más la altura.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\textbf{Esféricas} (simetría respecto a un punto):
+\[
+x=\rho\sin\varphi\cos\theta,\ y=\rho\sin\varphi\sin\theta,\ z=\rho\cos\varphi
+\]
+\[
+\boxed{dV=\rho^2\sin\varphi\,d\rho\,d\varphi\,d\theta}
+\]
+$\rho\ge0$, \ $0\le\varphi\le\pi$ (\textbf{desde el eje $z$ positivo}), \ $0\le\theta\le2\pi$. Además $\rho^2=x^2+y^2+z^2$ y $r=\rho\sin\varphi$.
+\end{minipage}
+
+\medskip
+\textbf{Superficies en esféricas:} $\rho=c$ es una esfera, $\varphi=c$ un cono y $\theta=c$ un semiplano.\\
+$x^2+y^2+(z-1)^2=1\iff\rho=2\cos\varphi$; \quad $z=\sqrt{x^2+y^2}\iff\varphi=\frac\pi4$; \quad $z=\sqrt{3(x^2+y^2)}\iff\varphi=\frac\pi6$; \quad $z=1\iff\rho=\frac1{\cos\varphi}$.
+
+\textbf{Esféricas adaptadas al elipsoide} $\frac{x^2}{a^2}+\frac{y^2}{b^2}+\frac{z^2}{c^2}\le1$: $x=a\rho\sin\varphi\cos\theta$, etc., con jacobiano $abc\,\rho^2\sin\varphi$. Volumen $\frac43\pi abc$.
+\end{resumen}
+
+\begin{resumen}[Probabilidad en $\R^3$]
+$p\ge0$, $\iiint_{\R^3}p=1$ y $P((X,Y,Z)\in E)=\iiint_E p\dV$. \textbf{Independencia:} $p(x,y,z)=p_X(x)p_Y(y)p_Z(z)$.
+Uniforme en la bola $B_R$: $P(\rho\le r)=(r/R)^3$. En $\R^n$ es $(r/R)^n$, y el volumen se concentra en la cáscara (maldición de la dimensionalidad).
+\end{resumen}
+
+\begin{ojo}
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Olvidar $r$ (cilíndricas) o $\rho^2\sin\varphi$ (esféricas).
+\item Confundir $\varphi$ (desde el eje $z$, de $0$ a $\pi$) con $\theta$ (en el plano $xy$, de $0$ a $2\pi$).
+\item Poner en los límites variables que ya se integraron.
+\item No dibujar la intersección de las superficies: ahí están los límites (por ejemplo, el cono $z=r$ y el plano $z=2$ se cortan en $r=2$).
+\end{itemize}
+\end{ojo}
+
+\section{Ejemplos resueltos}
+
+\begin{ejemplo}[Ejemplo 1 (Clase 21). Volumen bajo un paraboloide]
+Sólido bajo $z=4-x^2-y^2$ y sobre $z=0$. Proyección: el disco $r\le2$. En cilíndricas, $0\le z\le4-r^2$:
+\[
+V=\int_0^{2\pi}\!\!\int_0^2\!\!\int_0^{4-r^2}r\,dz\,dr\,d\theta=2\pi\int_0^2(4-r^2)r\,dr=2\pi\Big[2r^2-\frac{r^4}4\Big]_0^2=8\pi .
+\]
+\end{ejemplo}
+
+\begin{ejemplo}[Ejemplo 2 (Clase 21). Cono cerrado por un plano]
+$\iiint_\Omega(1+(x^2+y^2)^2)\dV$, con $\Omega$ entre el cono $z=\sqrt{x^2+y^2}$ y el plano $z=2$. Se cortan en $r=2$, así que $\Omega: r\le z\le2$, $0\le r\le2$:
+\[
+\int_0^{2\pi}\!\!\int_0^2(2-r)(1+r^4)\,r\,dr\,d\theta=2\pi\Big(4-\frac83+\frac{64}3-\frac{128}7\Big)=\frac{184\pi}{21}.
+\]
+\end{ejemplo}
+
+\begin{ejemplo}[Ejemplo 3 (Clase 22). Cono con tapa esférica]
+$\iiint_D z\dV$, con $D$ entre el cono $z=\sqrt{x^2+y^2}$ y la esfera $x^2+y^2+z^2=z$. En esféricas, la esfera es $\rho=\cos\varphi$ y el cono es $\varphi=\frac\pi4$:
+\[
+\int_0^{2\pi}\!\!\int_0^{\pi/4}\!\!\int_0^{\cos\varphi}(\rho\cos\varphi)\rho^2\sin\varphi\,d\rho\,d\varphi\,d\theta
+=\frac{2\pi}4\int_0^{\pi/4}\cos^5\varphi\sin\varphi\,d\varphi=\frac\pi{12}\Big(1-\frac18\Big)=\frac{7\pi}{96}.
+\]
+\end{ejemplo}
+
+\begin{ejemplo}[Ejemplo 4 (Clase 21). Paralelepípedo inclinado]
+$E=\{0\le x+y\le1,\ 0\le y+z\le1,\ 0\le x+z\le1\}$. Con $u=x+y$, $v=y+z$, $w=x+z$ se tiene $(u,v,w)\in[0,1]^3$ y
+$\frac{\partial(u,v,w)}{\partial(x,y,z)}=\det\begin{psmallmatrix}1&1&0\\0&1&1\\1&0&1\end{psmallmatrix}=2$. Entonces $\mathrm{Vol}(E)=\iiint_{[0,1]^3}\frac12\,du\,dv\,dw=\frac12$.
+\end{ejemplo}
+
+\section{Ejercicios}
+
+\ejercicio[Clase 21]{Fubini en una caja}
+Calcule $\iiint_B(x^2y+zy^2)\dV$, con $B=[0,1]\times[1,2]\times[-1,1]$.
+
+\ejercicio[Ay 10]{Región elemental en dos órdenes}
+Sea $E$ el sólido limitado por el cilindro parabólico $y=x^2$ y los planos $z=0$ e $y+z=1$.
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Describa $E$ respecto al plano $xy$ y calcule su volumen.
+\item Calcule $\iiint_E z\dV$.
+\end{enumerate}
+
+\ejercicio[Clase 21]{Cilíndricas}
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Volumen del sólido dentro del cilindro $x^2+y^2=4$, entre $z=0$ y $z=4-y$.
+\item $\iiint_E\sqrt{x^2+y^2}\dV$ con $E=\{x^2+y^2\le1,\ 0\le z\le x^2+y^2\}$.
+\end{enumerate}
+
+\ejercicio[Examen 2022-1]{Cilindro cortado por un plano}
+Sea $A$ la región dentro del cilindro $x^2+y^2=9$, sobre el plano $z=0$ y bajo el plano $y+z=5$. Dibuje $A$ y calcule $\iiint_A\sqrt{x^2+y^2}\dV$.
+
+\ejercicio[Examen 2023-1]{Cilíndricas y esféricas}
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Calcule $\iiint_A\sqrt{x^2+y^2}\dV$, con $A$ la región dentro del cilindro $x^2+y^2=1$, bajo el plano $z=4$ y sobre el paraboloide $z=1-x^2-y^2$.
+\item Calcule $\iiint_B e^{(x^2+y^2+z^2)^{3/2}}\dV$, con $B$ la bola unitaria centrada en el origen.
+\end{enumerate}
+
+\ejercicio[Ay 9]{Llenar un recipiente}
+Un recipiente tiene la forma del sólido limitado por el paraboloide $z=x^2+y^2$ y el plano $z=4$.
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Describa el sólido en cilíndricas y calcule su volumen.
+\item Si se llena hasta la altura $h$ ($0<h\le4$), calcule el volumen de líquido $V(h)$. ¿Hasta qué altura hay que llenarlo para que contenga la mitad? ¿Por qué no es $h=2$?
+\end{enumerate}
+
+\ejercicio[Ay 10]{Esfera perforada}
+Se perfora una esfera de radio 2 con un taladro de radio 1 a lo largo del eje $z$: $E=\{x^2+y^2+z^2\le4,\ x^2+y^2\ge1\}$. Describa $E$ en cilíndricas y calcule su volumen. ¿Cuánto material se removió?
+
+\ejercicio[Clase 22]{Esféricas}
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Escriba en esféricas la esfera $x^2+y^2+z^2=4z$ y el cono $z=\sqrt{3(x^2+y^2)}$.
+\item Calcule el volumen del sólido sobre el cono $\varphi=\frac\pi4$ y dentro de la esfera $\rho=2$.
+\item Calcule $\iiint_{B_1}(x^2+y^2+z^2)\dV$ sobre la bola unitaria.
+\item Calcule el volumen del elipsoide $\frac{x^2}4+\frac{y^2}9+z^2\le1$ usando esféricas adaptadas.
+\end{enumerate}
+
+\ejercicio[Ay 10]{Balón de rugby}
+El balón es el elipsoide $\frac{x^2}{16}+\frac{y^2}9+\frac{z^2}4\le1$, con densidad $\rho_m=1-\big(\frac{x^2}{16}+\frac{y^2}9+\frac{z^2}4\big)$. Calcule su volumen y su masa.
+
+\ejercicio[Ay 10]{Pisapapeles}
+Un tetraedro está limitado por los planos coordenados y el plano $x+y+z=2$ (en cm), con densidad $\rho_m=1+z$ (g/cm$^3$). Calcule su masa integrando al final en $z$ (corte a altura $z$ de área $A(z)$) y compárela con la de un vidrio homogéneo de densidad 1.
+
+\ejercicio[Clase 22]{Tres micros}
+Tres micros pasan cada 10 minutos, de forma independiente. Los tiempos de espera $T_1,T_2,T_3$ son uniformes en $[0,10]$. Calcule $P(T_1+T_2+T_3\le5)$.
+
+\newpage
+\section{Soluciones}
+
+\sol{1}
+$\int_{-1}^1\int_1^2\int_0^1(x^2y+zy^2)\,dx\,dy\,dz=\int_{-1}^1\Big(\frac12+\frac73z\Big)dz=1$.
+
+\sol{2}
+(a) La proyección es $R=\{-1\le x\le1,\ x^2\le y\le1\}$ y $0\le z\le1-y$.
+$V=\int_{-1}^1\int_{x^2}^1(1-y)\,dy\,dx=\int_{-1}^1\frac{(1-x^2)^2}2dx=\frac8{15}$.
+(b) $\int_{-1}^1\int_{x^2}^1\frac{(1-y)^2}2\,dy\,dx=\int_{-1}^1\frac{(1-x^2)^3}6dx=\frac{16}{105}$.
+
+\sol{3}
+(a) $\int_0^{2\pi}\int_0^2(4-r\sin\theta)\,r\,dr\,d\theta=16\pi$ (el término con $\sin\theta$ se anula).
+(b) $\int_0^{2\pi}\int_0^1\int_0^{r^2}r\cdot r\,dz\,dr\,d\theta=2\pi\int_0^1r^4dr=\frac{2\pi}5$.
+
+\sol{4}
+En cilíndricas: $0\le r\le3$, $0\le\theta\le2\pi$, $0\le z\le5-r\sin\theta$.
+$\int_0^{2\pi}\int_0^3 r(5-r\sin\theta)\,r\,dr\,d\theta=5\cdot9\cdot2\pi-0=90\pi$.
+
+\sol{5}
+(a) $0\le r\le1$, $1-r^2\le z\le4$: $\int_0^{2\pi}\int_0^1 r(3+r^2)\,r\,dr\,d\theta=2\pi\big(1+\frac15\big)=\frac{12\pi}5$.
+(b) En esféricas: $4\pi\int_0^1e^{\rho^3}\rho^2\,d\rho=4\pi\cdot\frac{e-1}3=\frac{4\pi(e-1)}3$.
+
+\sol{6}
+(a) $r^2\le z\le4$, $0\le r\le2$: $V=\int_0^{2\pi}\int_0^2(4-r^2)r\,dr\,d\theta=8\pi$.
+(b) $V(h)=\int_0^{2\pi}\int_0^{\sqrt h}(h-r^2)r\,dr\,d\theta=\frac{\pi h^2}2$. La mitad es $\frac{\pi h^2}2=4\pi$, es decir $h=2\sqrt2\approx2.83$. No es $h=2$ porque el recipiente es más ancho arriba.
+
+\sol{7}
+$1\le r\le2$ y $-\sqrt{4-r^2}\le z\le\sqrt{4-r^2}$: $V=2\pi\int_1^2 2r\sqrt{4-r^2}\,dr=2\pi\cdot\frac23\cdot3^{3/2}=4\sqrt3\,\pi\approx21.8$.
+Removido: $\frac{32\pi}3-4\sqrt3\pi\approx11.7$.
+
+\sol{8}
+(a) $\rho=4\cos\varphi$; \ $\varphi=\frac\pi6$.
+(b) $\int_0^{2\pi}\int_0^{\pi/4}\int_0^2\rho^2\sin\varphi\,d\rho\,d\varphi\,d\theta=\frac{16\pi}3\Big(1-\frac{\sqrt2}2\Big)\approx4.91$.
+(c) $\int_0^{2\pi}\int_0^\pi\int_0^1\rho^4\sin\varphi\,d\rho\,d\varphi\,d\theta=\frac{4\pi}5$.
+(d) $a=2$, $b=3$, $c=1$: $\frac43\pi\cdot6=8\pi$.
+
+\sol{9}
+Con esféricas adaptadas ($a,b,c=4,3,2$, jacobiano $24\rho^2\sin\varphi$) el balón es $\rho\le1$ y la densidad es $1-\rho^2$.
+Volumen $=\frac43\pi\cdot24=32\pi$. Masa $=24\cdot4\pi\int_0^1(1-\rho^2)\rho^2d\rho=96\pi\Big(\frac13-\frac15\Big)=\frac{64\pi}5$.
+
+\sol{10}
+El corte a altura $z$ es el triángulo $x,y\ge0$, $x+y\le2-z$, de área $A(z)=\frac{(2-z)^2}2$. Entonces
+$M=\int_0^2(1+z)\frac{(2-z)^2}2\,dz=2$ g. Homogéneo: masa $=$ volumen $=\frac{2^3}6=\frac43$ g.
+
+\sol{11}
+La región es el tetraedro $t_i\ge0$, $t_1+t_2+t_3\le5$, de volumen $\frac{5^3}6$, y la densidad es $\frac1{1000}$: $P=\frac{125/6}{1000}=\frac1{48}\approx0.021$.
+
+\end{document}

@@ -1,0 +1,254 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{multicol}
+
+\definecolor{azul}{RGB}{40,70,150}
+\definecolor{verde}{RGB}{30,120,70}
+\definecolor{rojo}{RGB}{170,40,40}
+\definecolor{gris}{RGB}{90,90,90}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\newtcolorbox{resumen}[1][]{colback=azul!5,colframe=azul,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{receta}[1][Receta]{colback=verde!6,colframe=verde,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{ojo}[1][Errores típicos]{colback=rojo!5,colframe=rojo,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{ejemplo}[1][]{colback=white,colframe=gris,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.6pt}
+
+\newcounter{ejer}
+\newcommand{\ejercicio}[2][]{\refstepcounter{ejer}\par\medskip\noindent\textbf{Ejercicio \theejer.}\ \textit{\small #2}\ifx&#1&\else\hfill{\small\textcolor{gris}{[#1]}}\fi\par}
+\newcommand{\sol}[1]{\par\medskip\noindent\textbf{Ejercicio #1.}\ }
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dA}{\,dA}
+\newcommand{\dV}{\,dV}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+\fancyhead[L]{\small Cálculo para Ciencia de Datos -- IMT2220}
+\fancyhead[R]{\small Guía 3: Polares y cambio de variables}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Guía 3: Coordenadas polares, campana de Gauss\\[2pt] y cambio de variables}\\[6pt]
+{\large Cálculo para Ciencia de Datos (IMT2220) -- Preparación Examen 2026-2}\\[3pt]
+{\small Material: Clases 19 y 20 \quad$\cdot$\quad Ayudantías 9 y 10 \quad$\cdot$\quad Exámenes 2022-2 y 2025-2}
+\end{center}
+
+\section{Resumen}
+
+\begin{resumen}[Coordenadas polares]
+$x=r\cos\theta$, $y=r\sin\theta$, con $r\ge0$, $0\le\theta\le2\pi$. Además $x^2+y^2=r^2$.
+\[
+\boxed{dA=r\,dr\,d\theta}\qquad
+\iint_D f\dA=\int_\alpha^\beta\!\!\int_{r_1(\theta)}^{r_2(\theta)} f(r\cos\theta,r\sin\theta)\,r\,dr\,d\theta .
+\]
+\textbf{¿Por qué el factor $r$?} El ``rectángulo polar'' tiene lados $\Delta r$ y $r\Delta\theta$ (un arco), así que su área es $\approx r\,\Delta r\,\Delta\theta$. Lejos del origen, el mismo $\Delta\theta$ barre más área. Sin el factor $r$, el área del disco daría $2\pi R$, que tiene unidades de longitud.
+
+\textbf{¿Cuándo usar polares?} Discos, coronas, sectores e integrandos que dependen de $x^2+y^2$.
+\end{resumen}
+
+\begin{receta}[Receta para polares]
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+\item Dibujar la región y ver qué ángulos la barren: $\alpha\le\theta\le\beta$.
+\item Para cada ángulo fijo, recorrer el rayo desde el origen: radio de entrada $r_1(\theta)$ y de salida $r_2(\theta)$.
+\item Reemplazar $x=r\cos\theta$, $y=r\sin\theta$ y \textbf{no olvidar el factor $r$}.
+\end{enumerate}
+Curvas útiles: $x^2+y^2=2x\iff r=2\cos\theta$ ($-\tfrac\pi2\le\theta\le\tfrac\pi2$), \ $x^2+y^2=2y\iff r=2\sin\theta$ ($0\le\theta\le\pi$).
+\end{receta}
+
+\begin{resumen}[La integral de Gauss y la normal]
+$e^{-x^2}$ no tiene primitiva elemental. El truco es calcular el cuadrado y pasar a polares:
+\[
+I^2=\iint_{\R^2}e^{-(x^2+y^2)}\dA=\lim_{R\to\infty}\int_0^{2\pi}\!\!\int_0^R e^{-r^2}r\,dr\,d\theta=\lim_{R\to\infty}\pi\big(1-e^{-R^2}\big)=\pi
+\]
+\[
+\Longrightarrow\quad\boxed{\int_{-\infty}^{\infty}e^{-x^2}dx=\sqrt\pi}
+\]
+\textbf{Normal estándar:} $\varphi(z)=\frac1{\sqrt{2\pi}}e^{-z^2/2}$, con $E[Z]=0$ y $\mathrm{Var}(Z)=1$.\\
+\textbf{Normal $N(\mu,\sigma^2)$:} $p(x)=\frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/(2\sigma^2)}$, que sale del cambio $z=\frac{x-\mu}{\sigma}$.\\
+\textbf{Media y varianza:} $E[X]=\int x\,p(x)\,dx$ y $\mathrm{Var}(X)=\int(x-\mu)^2p(x)\,dx$.\\
+\textbf{Integral impropia en $\R^2$} (con $f\ge0$): $\iint_{\R^2}f=\lim_{R\to\infty}\iint_{D_R}f$, donde $D_R$ es el disco de radio $R$.
+\end{resumen}
+
+\begin{resumen}[Teorema de cambio de variables]
+Si $T:D^*\to D$, $T(u,v)=(x,y)$, es biyectiva y $C^1$, con $\det DT\neq0$ en el interior:
+\[
+\boxed{\iint_D f(x,y)\,dx\,dy=\iint_{D^*} f\big(T(u,v)\big)\,\left|\frac{\partial(x,y)}{\partial(u,v)}\right|\,du\,dv}
+\qquad \frac{\partial(x,y)}{\partial(u,v)}=\det\begin{pmatrix}x_u&x_v\\y_u&y_v\end{pmatrix}.
+\]
+$|\det DT|$ es el factor por el que $T$ multiplica las áreas pequeñas. En polares es $r$. Si $T(u)=Au+b$ es lineal, el factor es $|\det A|$ y es exacto.
+
+\textbf{Jacobiano de la inversa (muy útil):} si conoces $u(x,y)$ y $v(x,y)$, no despejes:
+\[
+\frac{\partial(x,y)}{\partial(u,v)}=\frac{1}{\ \dfrac{\partial(u,v)}{\partial(x,y)}\ }.
+\]
+\end{resumen}
+
+\begin{receta}[Receta para un cambio de variables]
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+\item Mirar las curvas del borde: si son $x-2y=0$, $x-2y=4$, \dots, se elige $u=x-2y$.
+\item La región nueva $D^*$ suele ser un rectángulo: $u\in[\cdot,\cdot]$, $v\in[\cdot,\cdot]$.
+\item Calcular $\frac{\partial(u,v)}{\partial(x,y)}$ e invertirlo: $dA=\frac{1}{|\partial(u,v)/\partial(x,y)|}\,du\,dv$.
+\item Escribir el integrando en $u,v$ (a menudo se simplifica, como $x^2-y^2=(x+y)(x-y)=uv$).
+\end{enumerate}
+\end{receta}
+
+\begin{resumen}[Densidad de un vector transformado]
+Si $Z$ tiene densidad $p_Z$ y $X=AZ+b$ con $A$ invertible:
+\[
+p_X(x)=\frac{1}{|\det A|}\,p_Z\big(A^{-1}(x-b)\big).
+\]
+$A^{-1}(x-b)$ deshace la transformación. Se divide por $|\det A|$ porque la misma probabilidad se reparte en un área $|\det A|$ veces mayor. Las rotaciones ($\det=1$) no cambian las alturas, y la normal estándar 2D es invariante por rotaciones.
+\end{resumen}
+
+\begin{ojo}
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Olvidar el factor $r$, o el $|\det|$ en un cambio general.
+\item Usar $\frac{\partial(u,v)}{\partial(x,y)}$ en vez de su \emph{inverso}.
+\item Olvidar el valor absoluto del jacobiano.
+\item En polares, equivocarse en el rango de $\theta$ (semidisco superior: $0\le\theta\le\pi$; primer cuadrante: $0\le\theta\le\frac\pi2$).
+\end{itemize}
+\end{ojo}
+
+\section{Ejemplos resueltos}
+
+\begin{ejemplo}[Ejemplo 1 (Clase 19). Un cuarto de corona]
+$D=\{1\le x^2+y^2\le4,\ x\ge0,\ y\ge0\}$. En polares: $0\le\theta\le\frac\pi2$, $1\le r\le2$.
+\[
+\iint_D x\dA=\int_0^{\pi/2}\!\!\int_1^2 (r\cos\theta)\,r\,dr\,d\theta=\Big(\int_1^2r^2dr\Big)\Big(\int_0^{\pi/2}\cos\theta\,d\theta\Big)=\frac73\cdot1=\frac73 .
+\]
+\end{ejemplo}
+
+\begin{ejemplo}[Ejemplo 2 (Clase 19). Radio que depende del ángulo]
+El disco $(x-1)^2+y^2\le1$ es $x^2+y^2\le2x$, es decir $r\le2\cos\theta$ con $-\frac\pi2\le\theta\le\frac\pi2$. Su área:
+\[
+\int_{-\pi/2}^{\pi/2}\!\!\int_0^{2\cos\theta}r\,dr\,d\theta=\int_{-\pi/2}^{\pi/2}2\cos^2\theta\,d\theta=\int_{-\pi/2}^{\pi/2}(1+\cos2\theta)\,d\theta=\pi.\ \checkmark
+\]
+\end{ejemplo}
+
+\begin{ejemplo}[Ejemplo 3 (Clase 20). Cuadrado inclinado]
+$\iint_D(x^2-y^2)\dA$, con $D$ el cuadrado limitado por $x+y=0$, $x+y=2$, $x-y=0$ y $x-y=2$.\\
+Sea $u=x+y$, $v=x-y$, así que $D^*=[0,2]\times[0,2]$. Además
+$\frac{\partial(u,v)}{\partial(x,y)}=\det\begin{psmallmatrix}1&1\\1&-1\end{psmallmatrix}=-2$, luego $dA=\tfrac12\,du\,dv$, y $x^2-y^2=uv$:
+\[
+\iint_D(x^2-y^2)\dA=\int_0^2\!\!\int_0^2 uv\cdot\tfrac12\,du\,dv=\tfrac12\cdot2\cdot2=2.
+\]
+\end{ejemplo}
+
+\section{Ejercicios}
+
+\ejercicio[Clase 19]{Polares básicas}
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Calcule $\iint_D\sqrt{x^2+y^2}\dA$, con $D$ el disco de radio 2. Deduzca la distancia media al centro de un punto uniforme en $D$.
+\item Calcule $\iint_D y\dA$, con $D=\{x^2+y^2\le9,\ y\ge0\}$.
+\item Calcule el área encerrada por el círculo $r=2\sin\theta$. ¿Qué círculo es?
+\end{enumerate}
+
+\ejercicio[Ay 9]{Una integral imposible en cartesianas}
+Calcule, pasando a polares, $\displaystyle\int_0^1\!\!\int_0^{\sqrt{1-x^2}}e^{x^2+y^2}\,dy\,dx$. ¿Por qué no se puede calcular directamente en cartesianas?
+
+\ejercicio[Examen 2022-2]{Semicorona}
+Calcule $\iint_R(x^4+2x^2y^2+y^4)\dA$, con $R=\{1\le x^2+y^2\le4,\ y\ge0\}$.
+
+\ejercicio[Ay 9]{Entre dos circunferencias}
+Sea $D$ la región dentro de $x^2+y^2=2x$ y fuera de $x^2+y^2=1$. Encuentre los ángulos donde se cortan, describa $D$ en polares y calcule su área.
+
+\ejercicio[Ay 9, tipo examen]{Error de un GPS}
+El error de posición (en metros) es un punto $(X,Y)$ con densidad $p(x,y)=Ce^{-(x^2+y^2)/2}$ en $\R^2$.
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Calcule $\iint_{D_R}e^{-(x^2+y^2)/2}\dA$ y, haciendo $R\to\infty$, encuentre $C$.
+\item Calcule $P(X^2+Y^2\le R^2)$ y el radio $R$ que contiene el 95\% de los errores.
+\item ¿Cuánto vale $P(Y\ge|X|)$? (Responda sin integrar.)
+\end{enumerate}
+
+\ejercicio[Clase 19]{Impropias}
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Encuentre $C$ tal que $\dfrac{C}{(1+x^2+y^2)^2}$ sea una densidad en $\R^2$.
+\item Calcule $\int_0^\infty e^{-3x^2}dx$ usando $\int_{-\infty}^\infty e^{-x^2}dx=\sqrt\pi$.
+\end{enumerate}
+
+\ejercicio[Clase 20]{Cambio lineal}
+Sea $D$ la región limitada por $x-2y=0$, $x-2y=4$, $x+y=1$ y $x+y=4$. Calcule $\iint_D(x+y)\dA$ usando $u=x-2y$, $v=x+y$, sin despejar $x$ ni $y$.
+
+\ejercicio[Examen 2025-2]{Cambio de variables}
+Calcule $\displaystyle\iint_D\frac{x-2y}{3x-y}\dA$, donde $D$ es la región acotada por las rectas $x-2y=0$, $x-2y=4$, $3x-y=1$ y $3x-y=8$.
+
+\ejercicio[Clase 20]{Cambio no lineal}
+Sea $R$ la región del primer cuadrante acotada por $xy=1$, $xy=2$, $y=\frac x2$ e $y=3x$. Calcule $\iint_R x^2y^2\dA$ usando $u=xy$, $v=\frac yx$.
+
+\ejercicio[Ay 10]{Placa elíptica}
+Una placa tiene la forma $D=\{\frac{x^2}{16}+\frac{y^2}{9}\le1\}$.
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Con $x=4u$, $y=3v$, ¿en qué región $D^*$ se transforma $D$? Calcule el jacobiano y el área de $D$.
+\item Con la densidad $\rho(x,y)=e^{-(x^2/16+y^2/9)}$, calcule la masa usando las polares elípticas $x=4r\cos\theta$, $y=3r\sin\theta$ (verifique que el jacobiano es $12r$).
+\end{enumerate}
+
+\newpage
+\section{Soluciones}
+
+\sol{1}
+(a) $\int_0^{2\pi}\int_0^2 r\cdot r\,dr\,d\theta=\frac{16\pi}3$. Distancia media: $\frac{16\pi/3}{4\pi}=\frac43$.
+(b) $\int_0^\pi\int_0^3 r\sin\theta\cdot r\,dr\,d\theta=9\cdot2=18$.
+(c) Es el círculo de radio 1 centrado en $(0,1)$ ($x^2+y^2=2y$), con $0\le\theta\le\pi$: área $\pi$.
+
+\sol{2}
+La región es el cuarto de disco unitario en el primer cuadrante:
+$\int_0^{\pi/2}\int_0^1e^{r^2}r\,dr\,d\theta=\frac\pi2\cdot\frac{e-1}2=\frac{\pi(e-1)}4$. En cartesianas aparece $\int e^{y^2}dy$, que no tiene primitiva elemental. En polares, el factor $r$ es justo la derivada que falta.
+
+\sol{3}
+El integrando es $(x^2+y^2)^2=r^4$: $\int_0^\pi\int_1^2r^4\cdot r\,dr\,d\theta=\pi\cdot\frac{2^6-1}6=\frac{21\pi}2$.
+
+\sol{4}
+$r=2\cos\theta$ y $r=1$ se cortan en $\cos\theta=\frac12$, es decir $\theta=\pm\frac\pi3$. Entonces $D:\ -\frac\pi3\le\theta\le\frac\pi3,\ 1\le r\le2\cos\theta$, y
+\[
+\text{Área}=\int_{-\pi/3}^{\pi/3}\frac{4\cos^2\theta-1}2\,d\theta=\int_{-\pi/3}^{\pi/3}\Big(\frac12+\cos2\theta\Big)d\theta=\frac\pi3+\frac{\sqrt3}2\approx1.913.
+\]
+
+\sol{5}
+(a) $\int_0^{2\pi}\int_0^Re^{-r^2/2}r\,dr\,d\theta=2\pi\big(1-e^{-R^2/2}\big)\to2\pi$, así que $C=\frac1{2\pi}$.
+(b) $P=1-e^{-R^2/2}$. Para el 95\%: $e^{-R^2/2}=0.05$, es decir $R=\sqrt{2\ln20}\approx2.45$ m.
+(c) La región $y\ge|x|$ es el sector $\frac\pi4\le\theta\le\frac{3\pi}4$ (un cuarto del plano) y la densidad es radial, así que $P=\frac14$.
+
+\sol{6}
+(a) $\int_0^{2\pi}\int_0^\infty\frac{r}{(1+r^2)^2}dr\,d\theta=2\pi\cdot\frac12=\pi$, así que $C=\frac1\pi$.
+(b) Con $u=\sqrt3\,x$: $\frac1{\sqrt3}\cdot\frac{\sqrt\pi}2=\frac12\sqrt{\frac\pi3}\approx0.512$.
+
+\sol{7}
+$\frac{\partial(u,v)}{\partial(x,y)}=\det\begin{psmallmatrix}1&-2\\1&1\end{psmallmatrix}=3$, luego $dA=\frac13du\,dv$, con $D^*=[0,4]_u\times[1,4]_v$:
+$\int_0^4\int_1^4\frac v3\,dv\,du=\frac13\cdot4\cdot\frac{15}2=10$.
+
+\sol{8}
+$u=x-2y\in[0,4]$, $v=3x-y\in[1,8]$. $\frac{\partial(u,v)}{\partial(x,y)}=\det\begin{psmallmatrix}1&-2\\3&-1\end{psmallmatrix}=5$, luego $dA=\frac15du\,dv$:
+\[
+\int_0^4\!\!\int_1^8\frac uv\cdot\frac15\,dv\,du=\frac15\cdot8\cdot\ln8=\frac{8\ln8}5=\frac{24\ln2}5\approx3.33 .
+\]
+
+\sol{9}
+$u\in[1,2]$ y $v\in[\frac12,3]$. $\frac{\partial(u,v)}{\partial(x,y)}=\det\begin{psmallmatrix}y&x\\-y/x^2&1/x\end{psmallmatrix}=\frac{2y}x=2v$, así que $dA=\frac{du\,dv}{2v}$. Como $x^2y^2=u^2$:
+\[
+\int_{1/2}^3\!\!\int_1^2\frac{u^2}{2v}\,du\,dv=\frac73\cdot\frac12\ln6=\frac76\ln6 .
+\]
+
+\sol{10}
+(a) $D^*$ es el disco unitario $u^2+v^2\le1$. $\frac{\partial(x,y)}{\partial(u,v)}=12$, así que el área de $D$ es $12\pi$ (12 veces la de $D^*$).
+(b) $\det\begin{psmallmatrix}4\cos\theta&-4r\sin\theta\\3\sin\theta&3r\cos\theta\end{psmallmatrix}=12r$, y $D$ es $0\le r\le1$, $0\le\theta\le2\pi$:
+masa $=\int_0^{2\pi}\int_0^1e^{-r^2}12r\,dr\,d\theta=12\pi(1-e^{-1})\approx23.8$. Con polares usuales, el borde sería $r=r(\theta)$ complicado y el integrando no sería radial.
+
+\end{document}
