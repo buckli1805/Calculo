@@ -1,0 +1,223 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{multicol}
+
+\definecolor{azul}{RGB}{40,70,150}
+\definecolor{verde}{RGB}{30,120,70}
+\definecolor{rojo}{RGB}{170,40,40}
+\definecolor{gris}{RGB}{90,90,90}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\newtcolorbox{resumen}[1][]{colback=azul!5,colframe=azul,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{receta}[1][Receta]{colback=verde!6,colframe=verde,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{ojo}[1][Errores típicos]{colback=rojo!5,colframe=rojo,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{ejemplo}[1][]{colback=white,colframe=gris,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.6pt}
+
+\newcounter{ejer}
+\newcommand{\ejercicio}[2][]{\refstepcounter{ejer}\par\medskip\noindent\textbf{Ejercicio \theejer.}\ \textit{\small #2}\ifx&#1&\else\hfill{\small\textcolor{gris}{[#1]}}\fi\par}
+\newcommand{\sol}[1]{\par\medskip\noindent\textbf{Ejercicio #1.}\ }
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dA}{\,dA}
+\newcommand{\dV}{\,dV}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+\fancyhead[L]{\small Cálculo para Ciencia de Datos -- IMT2220}
+\fancyhead[R]{\small Guía 1: Lagrange y extremos absolutos}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Guía 1: Multiplicadores de Lagrange\\[2pt] y extremos absolutos}\\[6pt]
+{\large Cálculo para Ciencia de Datos (IMT2220) -- Preparación Examen 2026-2}\\[3pt]
+{\small Material: Clases 15 y 16 \quad$\cdot$\quad Exámenes 2022-1, 2022-2, 2023-1 y 2025-2}
+\end{center}
+
+\section{Resumen}
+
+\begin{resumen}[Optimización con una restricción]
+Problema: optimizar $f(x)$ con $x\in\R^n$, sujeto a $g(x)=0$. El conjunto factible es $S=\{x : g(x)=0\}$.
+
+\textbf{Idea geométrica.} $\nabla g(x)$ es perpendicular a $S$ en cada punto. En un extremo restringido $x^*$, también $\nabla f(x^*)$ es perpendicular a $S$ (si no, podríamos movernos dentro de $S$ y mejorar $f$). Entonces los dos gradientes son paralelos:
+\[
+\boxed{\nabla f(x^*) = \lambda\,\nabla g(x^*),\qquad g(x^*)=0.}
+\]
+$\lambda$ es el \textbf{multiplicador de Lagrange}. Lo mismo se escribe con la función de Lagrange
+\[
+L(x,\lambda)=f(x)-\lambda g(x),\qquad \nabla L(x,\lambda)=0 .
+\]
+Son $n+1$ ecuaciones con $n+1$ incógnitas ($x_1,\dots,x_n,\lambda$).
+\end{resumen}
+
+\begin{resumen}[Varias restricciones]
+Para $g_1(x)=\dots=g_q(x)=0$:
+\[
+\nabla f(x^*)=\sum_{j=1}^q \lambda_j\nabla g_j(x^*),\qquad L(x,\lambda)=f(x)-\sum_{j=1}^q\lambda_j g_j(x).
+\]
+Son $n+q$ ecuaciones con $n+q$ incógnitas. A veces es más fácil \emph{despejar} una variable de una restricción lineal y sustituir.
+\end{resumen}
+
+\begin{resumen}[Extremos absolutos en una región compacta]
+\textbf{Teorema de Weierstrass.} Si $f$ es continua y $D$ es \emph{cerrado y acotado}, entonces $f$ alcanza un máximo absoluto y un mínimo absoluto en $D$.
+
+\begin{receta}[Receta (la que más se pregunta)]
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+\item Citar Weierstrass: $f$ continua y $D$ compacto $\Rightarrow$ existen máximo y mínimo. \emph{(Da puntaje.)}
+\item \textbf{Interior:} resolver $\nabla f=0$ y quedarse \emph{solo} con los puntos que están dentro de $D$.
+\item \textbf{Frontera:} si el borde es $g(x)=0$, aplicar Lagrange: $\nabla f=\lambda\nabla g$, $g=0$.
+\item \textbf{Comparar:} evaluar $f$ en todos los candidatos. El mayor valor es el máximo absoluto y el menor es el mínimo absoluto.
+\end{enumerate}
+\end{receta}
+No hace falta la Hessiana para los extremos absolutos: basta comparar valores.
+\end{resumen}
+
+\begin{resumen}[Aplicación: solución de norma mínima]
+Si $Ax=b$ tiene infinitas soluciones ($A\in M_{m\times n}$, $m<n$), la de menor norma resuelve
+$\min \tfrac12\|x\|^2$ sujeto a $Ax=b$. Con $L(x,\lambda)=\tfrac12 x^Tx-\lambda^T(Ax-b)$:
+\[
+x=A^T\lambda,\qquad AA^T\lambda=b\qquad\Longrightarrow\qquad \boxed{x^*=A^T(AA^T)^{-1}b}
+\]
+(si $AA^T$ es invertible). $A^T(AA^T)^{-1}$ es la pseudoinversa de Moore--Penrose.
+
+\smallskip
+\textbf{Comparación:} \emph{mínimos cuadrados} $\min\|Ax-b\|^2$ cuando $Ax=b$ \textbf{no tiene} solución; \emph{norma mínima} $\min\|x\|^2$ s.a. $Ax=b$ cuando tiene \textbf{infinitas}.
+\end{resumen}
+
+\begin{ojo}
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Dividir por $x$ o por $y$ sin revisar el caso $x=0$ o $y=0$: se pierden candidatos.
+\item Olvidar usar la restricción $g=0$ para cerrar el sistema.
+\item En una región, olvidar revisar si el punto crítico está \emph{dentro} de $D$.
+\item Si la restricción \textbf{no es acotada} (una recta, por ejemplo), Lagrange da candidatos, pero no garantiza que exista máximo o mínimo: hay que argumentarlo.
+\end{itemize}
+\end{ojo}
+
+\section{Ejemplos resueltos}
+
+\begin{ejemplo}[Ejemplo 1 (Clase 15). Punto de la recta $x+2y=5$ más cercano al origen]
+Minimizamos $f=x^2+y^2$ con $g=x+2y-5=0$. Ecuaciones: $(2x,2y)=\lambda(1,2)$ y $x+2y=5$.
+De las primeras, $x=\lambda/2$, $y=\lambda$. Sustituyendo: $\lambda/2+2\lambda=5\Rightarrow\lambda=2$.
+El punto es $(1,2)$ y la distancia mínima es $\sqrt5$. Note que $(1,2)$ es paralelo a la normal $\nabla g=(1,2)$.
+\end{ejemplo}
+
+\begin{ejemplo}[Ejemplo 2 (Clase 16). Extremos absolutos de $f=xy$ en el disco $x^2+y^2\le1$]
+\textbf{Existencia.} $f$ es continua y el disco es cerrado y acotado: por Weierstrass existen máximo y mínimo.
+
+\textbf{Interior.} $\nabla f=(y,x)=0\Rightarrow(0,0)$, con $f(0,0)=0$. (Su Hessiana $\begin{psmallmatrix}0&1\\1&0\end{psmallmatrix}$ tiene valores propios $\pm1$: es silla, pero igual lo comparamos.)
+
+\textbf{Frontera.} $g=x^2+y^2-1$. Ecuaciones: $y=2\lambda x$, $x=2\lambda y$, $x^2+y^2=1$. Multiplicando las dos primeras: $xy=4\lambda^2xy$. Si $xy\neq0$, $\lambda=\pm\frac12$.
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+\item $\lambda=\tfrac12$: $y=x$, $2x^2=1$: puntos $\pm(\tfrac1{\sqrt2},\tfrac1{\sqrt2})$ con $f=\tfrac12$.
+\item $\lambda=-\tfrac12$: $y=-x$: puntos $\pm(\tfrac1{\sqrt2},-\tfrac1{\sqrt2})$ con $f=-\tfrac12$.
+\end{itemize}
+(Si $xy=0$, las ecuaciones obligan $x=y=0$, que no está en la circunferencia.)
+
+\textbf{Comparación.} Máximo absoluto $\tfrac12$ y mínimo absoluto $-\tfrac12$.
+\end{ejemplo}
+
+\begin{ejemplo}[Ejemplo 3 (Clase 16). Solución de norma mínima de $x_1+x_2=1$]
+$A=(1\ \ 1)$, $b=1$. Entonces $AA^T=2$ y $x^*=A^T(AA^T)^{-1}b=\tfrac12(1,1)^T$.
+\end{ejemplo}
+
+\section{Ejercicios}
+
+\ejercicio[Clase 16]{Lagrange en una recta}
+Encuentre los valores máximo y mínimo de $f(x,y)=4x^2+3xy+2y^2$ sobre la recta $x+y=5$.
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Plantee la función de Lagrange y resuelva las ecuaciones de primer orden.
+\item ¿Existen máximo y mínimo globales sobre la recta? Justifique.
+\end{enumerate}
+
+\ejercicio[Básico]{Distancia a un plano}
+Encuentre el punto del plano $x+2y+2z=9$ más cercano al origen, minimizando $x^2+y^2+z^2$ con Lagrange. ¿Cuál es la distancia?
+
+\ejercicio[Examen 2022-2]{Lagrange en una elipse}
+Sea $f(x,y)=xy$.
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Encuentre y clasifique los puntos críticos de $f$ en $\R^2$.
+\item Resuelva $\max f(x,y)$ sujeto a $x^2+2y^2=16$ con multiplicadores de Lagrange.
+\end{enumerate}
+
+\ejercicio[Examen 2022-1]{Libre y restringido}
+Sea $h(x,y)=-2x^2-xy-2y^2+12x+4y$.
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Encuentre los puntos críticos de $h$ y clasifíquelos con la Hessiana.
+\item Con multiplicadores de Lagrange, estudie los extremos de $h$ restringida a la recta $2x+y=1$.
+\end{enumerate}
+
+\ejercicio[Examen 2025-2]{Extremos absolutos en un disco}
+Encuentre los valores máximo y mínimo absolutos de $f(x,y)=x^2+y^2-2x-4y$ en el disco cerrado $D=\{x^2+y^2\le1\}$.
+
+\ejercicio[Examen 2023-1]{Temperatura en una placa}
+La temperatura en la placa $D=\{x^2+y^2\le1\}$ es $T(x,y)=x^2+2y^2-x+5$. Encuentre los puntos de la placa con mayor y menor temperatura.
+
+\ejercicio[Clase 15]{Dos restricciones}
+Encuentre el valor máximo de $h(x,y,z)=x+2y+3z$ en la curva que se forma al intersectar el plano $x-y+z=1$ con el cilindro $x^2+y^2=1$.
+
+\textit{Sugerencia:} puede usar dos multiplicadores, o despejar $z$ del plano y quedarse con una sola restricción.
+
+\ejercicio[Tipo examen]{Norma mínima}
+Considere el sistema $x_1+x_2+x_3=3$, $x_1-x_3=1$.
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Explique por qué tiene infinitas soluciones.
+\item Encuentre la solución de menor norma euclidiana usando $x^*=A^T(AA^T)^{-1}b$.
+\item Deduzca la fórmula de (b) planteando el problema con multiplicadores de Lagrange.
+\end{enumerate}
+
+\newpage
+\section{Soluciones}
+
+\sol{1}
+$L=4x^2+3xy+2y^2-\lambda(x+y-5)$. Ecuaciones: $8x+3y=\lambda$, $3x+4y=\lambda$, $x+y=5$. Igualando: $5x=y$, luego $x=\tfrac56$, $y=\tfrac{25}{6}$ (con $\lambda=\tfrac{115}{6}$) y $f=\tfrac{575}{12}\approx47.9$.
+
+Sobre la recta, $y=5-x$ y $f=3x^2-5x+50$: una parábola que abre hacia arriba. Por eso $f\to\infty$ en ambos extremos de la recta: hay \textbf{mínimo global} $\tfrac{575}{12}$ en $(\tfrac56,\tfrac{25}6)$ y \textbf{no hay máximo}. La recta no es acotada, así que Weierstrass no aplica.
+
+\sol{2}
+$(2x,2y,2z)=\lambda(1,2,2)$, luego $(x,y,z)=\tfrac\lambda2(1,2,2)$. En el plano: $\tfrac\lambda2(1+4+4)=9\Rightarrow\lambda=2$. Punto $(1,2,2)$ y distancia $3$.
+
+\sol{3}
+(a) $\nabla f=(y,x)=0\Rightarrow(0,0)$. Hessiana $\begin{psmallmatrix}0&1\\1&0\end{psmallmatrix}$, valores propios $\pm1$: punto silla (no hay extremos locales).
+
+(b) $y=2\lambda x$, $x=4\lambda y$, $x^2+2y^2=16$. Si $x=0$ entonces $y=0$, que no cumple la restricción. Si $x\ne0$: $x=8\lambda^2x\Rightarrow\lambda^2=\tfrac18$ y $y^2=4\lambda^2x^2=\tfrac{x^2}2$. Sustituyendo: $2x^2=16$, $x=\pm2\sqrt2$, $y=\pm2$. Como la elipse es compacta, comparamos: máximo $4\sqrt2$ en $(2\sqrt2,2)$ y $(-2\sqrt2,-2)$; mínimo $-4\sqrt2$ en los otros dos.
+
+\sol{4}
+(a) $h_x=-4x-y+12$, $h_y=-x-4y+4$. Resolviendo: $(x,y)=(\tfrac{44}{15},\tfrac4{15})$. Hessiana $\begin{psmallmatrix}-4&-1\\-1&-4\end{psmallmatrix}$, valores propios $-3,-5$: definida negativa, \textbf{máximo local}.
+
+(b) $-4x-y+12=2\lambda$, $-x-4y+4=\lambda$, $2x+y=1$. Resolviendo: $(x,y)=(\tfrac{11}{16},-\tfrac38)$, con $h=\tfrac{185}{32}$. Comprobación: sobre la recta, $y=1-2x$ y $h=-8x^2+11x+2$, una parábola que abre hacia abajo. Es un \textbf{máximo} restringido y no hay mínimo.
+
+\sol{5}
+Weierstrass asegura que existen. \textbf{Interior:} $\nabla f=(2x-2,2y-4)=0\Rightarrow(1,2)$, pero $1+4=5>1$: no está en $D$. \textbf{Frontera:} $(2x-2,2y-4)=\lambda(2x,2y)$. Despejando, $1-\tfrac1x=\lambda=1-\tfrac2y$, luego $y=2x$. (Los casos $x=0$ o $y=0$ no dan solución.) Con $x^2+y^2=1$: $x=\pm\tfrac1{\sqrt5}$. Evaluando:
+\[
+f\big(\tfrac1{\sqrt5},\tfrac2{\sqrt5}\big)=1-2\sqrt5\ \ (\text{mínimo}),\qquad f\big(-\tfrac1{\sqrt5},-\tfrac2{\sqrt5}\big)=1+2\sqrt5\ \ (\text{máximo}).
+\]
+
+\sol{6}
+\textbf{Interior:} $\nabla T=(2x-1,4y)=0\Rightarrow P_1=(\tfrac12,0)$, $T=\tfrac{19}4$. \textbf{Frontera:} $2x-1=2\lambda x$, $4y=2\lambda y$, $x^2+y^2=1$. La segunda da $y=0$ o $\lambda=2$.
+Si $y=0$: $(\pm1,0)$ con $T(1,0)=5$, $T(-1,0)=7$. Si $\lambda=2$: $2x-1=4x\Rightarrow x=-\tfrac12$, $y=\pm\tfrac{\sqrt3}2$, con $T=\tfrac{29}4$.
+\textbf{Máximo} $\tfrac{29}4$ en $(-\tfrac12,\pm\tfrac{\sqrt3}2)$; \textbf{mínimo} $\tfrac{19}4$ en $(\tfrac12,0)$.
+
+\sol{7}
+Despejando $z=1-x+y$: $h=3-2x+5y$ sobre $x^2+y^2=1$. Lagrange (o Cauchy--Schwarz): $(-2,5)=\mu(2x,2y)$, así que $(x,y)=\pm\tfrac{1}{\sqrt{29}}(-2,5)$. Máximo $3+\sqrt{29}$ en $\big(-\tfrac2{\sqrt{29}},\tfrac5{\sqrt{29}},1+\tfrac7{\sqrt{29}}\big)$; mínimo $3-\sqrt{29}$. Con dos multiplicadores se obtiene $\lambda=3$ y $\mu=\pm\tfrac{\sqrt{29}}2$, y los mismos puntos.
+
+\sol{8}
+(a) Son 2 ecuaciones con 3 incógnitas y las filas de $A$ son linealmente independientes. (b) $A=\begin{psmallmatrix}1&1&1\\1&0&-1\end{psmallmatrix}$, $b=(3,1)^T$, $AA^T=\begin{psmallmatrix}3&0\\0&2\end{psmallmatrix}$, $\lambda=(1,\tfrac12)^T$ y $x^*=A^T\lambda=(\tfrac32,1,\tfrac12)$. Verificación: $\tfrac32+1+\tfrac12=3$ y $\tfrac32-\tfrac12=1$. (c) Ver el resumen: $\nabla_xL=x-A^T\lambda=0$ y $Ax=b$.
+
+\end{document}

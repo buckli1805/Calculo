@@ -1,0 +1,269 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{multicol}
+
+\definecolor{azul}{RGB}{40,70,150}
+\definecolor{verde}{RGB}{30,120,70}
+\definecolor{rojo}{RGB}{170,40,40}
+\definecolor{gris}{RGB}{90,90,90}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\newtcolorbox{resumen}[1][]{colback=azul!5,colframe=azul,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{receta}[1][Receta]{colback=verde!6,colframe=verde,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{ojo}[1][Errores típicos]{colback=rojo!5,colframe=rojo,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.8pt}
+\newtcolorbox{ejemplo}[1][]{colback=white,colframe=gris,fonttitle=\bfseries,title={#1},breakable,arc=2pt,boxrule=0.6pt}
+
+\newcounter{ejer}
+\newcommand{\ejercicio}[2][]{\refstepcounter{ejer}\par\medskip\noindent\textbf{Ejercicio \theejer.}\ \textit{\small #2}\ifx&#1&\else\hfill{\small\textcolor{gris}{[#1]}}\fi\par}
+\newcommand{\sol}[1]{\par\medskip\noindent\textbf{Ejercicio #1.}\ }
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dA}{\,dA}
+\newcommand{\dV}{\,dV}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+\fancyhead[L]{\small Cálculo para Ciencia de Datos -- IMT2220}
+\fancyhead[R]{\small Guía 5: Análisis de Fourier}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Guía 5: Análisis de Fourier}\\[6pt]
+{\large Cálculo para Ciencia de Datos (IMT2220) -- Preparación Examen 2026-2}\\[3pt]
+{\small Material: Clases 23, 24 y 25 \quad$\cdot$\quad Exámenes 2022-1, 2023-1 y 2025-2}
+\end{center}
+
+\section{Resumen}
+
+\begin{resumen}[Señales periódicas]
+$s$ tiene período $T$ si $s(t+T)=s(t)$. Su frecuencia es $f=\frac1T$ (Hz) y su frecuencia angular es $\omega=2\pi f=\frac{2\pi}T$.
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Una suma de sinusoides con frecuencias enteras $f_1,\dots,f_n$ tiene período $1/\mathrm{mcd}(f_1,\dots,f_n)$. Es periódica si y solo si los cocientes $f_i/f_j$ son racionales.
+\item \textbf{Amplitud y fase:} $A\sin(\omega t+\varphi)=a\cos\omega t+b\sin\omega t$, con $a=A\sin\varphi$, $b=A\cos\varphi$ y $A=\sqrt{a^2+b^2}$. Cada frecuencia es un subespacio de dimensión 2: $\mathrm{span}\{\cos\omega t,\sin\omega t\}$.
+\end{itemize}
+\end{resumen}
+
+\begin{resumen}[Producto interno de funciones y ortogonalidad]
+\[
+\langle f,g\rangle=\int_{-\pi}^{\pi}f(x)g(x)\,dx,\qquad \|f\|^2=\int_{-\pi}^\pi f^2\ \ (\text{energía}),\qquad \cos\theta=\frac{\langle f,g\rangle}{\|f\|\,\|g\|}.
+\]
+\textbf{Simetría:} si $f$ es impar y $g$ es par, $\langle f,g\rangle=0$.
+
+\textbf{Teorema de ortogonalidad.} $\{1,\cos x,\sin x,\cos2x,\sin2x,\dots\}$ es ortogonal en $[-\pi,\pi]$, con
+\[
+\|1\|^2=2\pi,\qquad\|\cos kx\|^2=\|\sin kx\|^2=\pi .
+\]
+Se demuestra con las identidades producto-suma, por ejemplo $\sin\alpha\sin\beta=\frac12[\cos(\alpha-\beta)-\cos(\alpha+\beta)]$, y con $\int_{-\pi}^\pi\cos nx\,dx=0$ para $n\neq0$.
+\end{resumen}
+
+\begin{resumen}[Serie de Fourier (período $2\pi$)]
+\[
+f(x)\sim a_0+\sum_{k\ge1}\big(a_k\cos kx+b_k\sin kx\big)
+\]
+\[
+\boxed{a_0=\frac1{2\pi}\int_{-\pi}^\pi f,\qquad a_k=\frac1\pi\int_{-\pi}^\pi f(x)\cos kx\,dx,\qquad b_k=\frac1\pi\int_{-\pi}^\pi f(x)\sin kx\,dx}
+\]
+$a_0$ es el promedio de $f$. Los coeficientes son las coordenadas de la \textbf{proyección ortogonal} $c=\frac{\langle f,\phi\rangle}{\langle\phi,\phi\rangle}$.
+La suma parcial $S_nf$ es la \textbf{mejor aproximación} (mínimos cuadrados) de $f$ en $V_n=\mathrm{span}\{1,\cos x,\dots,\sin nx\}$, y el error $f-S_nf$ es ortogonal a $V_n$.
+
+\textbf{Atajo:} si $f$ es \textbf{par}, $b_k=0$ y $a_k=\frac2\pi\int_0^\pi f\cos kx$ (solo cosenos). Si $f$ es \textbf{impar}, $a_k=0$ y $b_k=\frac2\pi\int_0^\pi f\sin kx$ (solo senos).
+
+\textbf{Período $T$:} se reemplaza $kx$ por $\frac{2\pi kt}{T}$, con $a_0=\frac1T\int_0^Tf$, $a_k=\frac2T\int_0^Tf\cos\frac{2\pi kt}T$ y $b_k=\frac2T\int_0^Tf\sin\frac{2\pi kt}T$. El término $k$ tiene frecuencia $k/T$ Hz.
+
+\textbf{Ojo con la convención:} en la Clase 24, $a_0$ es el promedio. Algunas pautas antiguas escriben $\frac{a_0}2$ con $a_0=\frac1\pi\int f$: es la misma serie.
+\end{resumen}
+
+\begin{resumen}[Convergencia (Dirichlet) y espectro]
+Si $f$ es $2\pi$-periódica y $C^1$ a trozos:
+\[
+\lim_{n\to\infty}S_nf(x)=\frac{f(x^+)+f(x^-)}2 .
+\]
+Donde $f$ es continua converge a $f(x)$, y en un salto converge al \textbf{promedio de los límites laterales}. Cerca de los saltos queda una oscilación que no baja (fenómeno de Gibbs).
+
+\textbf{Espectro de amplitudes:} $A_k=\sqrt{a_k^2+b_k^2}$ contra la frecuencia. Si $f$ tiene saltos, $A_k\sim1/k$; si tiene esquinas, $A_k\sim1/k^2$; si es suave, decae muy rápido. Una señal más suave necesita menos términos.
+\end{resumen}
+
+\begin{resumen}[Teorema de Parseval (Pitágoras en dimensión infinita)]
+\[
+\frac1{2\pi}\int_{-\pi}^{\pi}f^2\,dx=a_0^2+\frac12\sum_{k\ge1}\big(a_k^2+b_k^2\big)=a_0^2+\sum_{k\ge1}\frac{A_k^2}2 .
+\]
+La potencia de la señal es la suma de las potencias de sus armónicos (cada armónico aporta $\frac12A_k^2$, sin importar la fase).
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item \textbf{Error de truncar:} $\frac1{2\pi}\int(f-S_nf)^2=\frac12\sum_{k>n}(a_k^2+b_k^2)$, la energía descartada.
+\item \textbf{Con $m$ armónicos}, lo óptimo es guardar los $m$ de \emph{mayor energía} (no necesariamente los primeros).
+\item Sirve para sumar series: $\sum\frac1{k^2}=\frac{\pi^2}6$, $\sum_{k\text{ impar}}\frac1{k^2}=\frac{\pi^2}8$, $\sum\frac1{k^4}=\frac{\pi^4}{90}$.
+\end{itemize}
+\end{resumen}
+
+\begin{resumen}[Muestreo y aliasing]
+Muestras $s_n=s(n\Delta t)$, con frecuencia de muestreo $f_s=\frac1{\Delta t}$. Las frecuencias $f$, $f+mf_s$ y $mf_s-f$ dan las \textbf{mismas muestras}.
+La \textbf{frecuencia aparente} está en $[0,f_s/2]$: se resta el múltiplo de $f_s$ más cercano y se toma valor absoluto. Si $f<f_s/2$ no hay aliasing.
+\end{resumen}
+
+\begin{resumen}[Tres series que conviene saber (período $2\pi$)]
+\begin{tabular}{@{}lll@{}}
+Onda cuadrada ($-1$ en $(-\pi,0)$, $1$ en $(0,\pi)$) & impar & $\displaystyle\frac4\pi\Big(\sin x+\frac{\sin3x}3+\frac{\sin5x}5+\cdots\Big)$\\[8pt]
+Diente de sierra $f=x$ en $(-\pi,\pi)$ & impar & $\displaystyle2\sum_{k\ge1}\frac{(-1)^{k+1}}{k}\sin kx$\\[8pt]
+$f=|x|$ en $[-\pi,\pi]$ & par & $\displaystyle\frac\pi2-\frac4\pi\Big(\cos x+\frac{\cos3x}9+\frac{\cos5x}{25}+\cdots\Big)$
+\end{tabular}
+\end{resumen}
+
+\begin{ojo}
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Olvidar que $\cos k\pi=(-1)^k$ y $\sin k\pi=0$.
+\item No aprovechar la paridad (se duplica el trabajo).
+\item En funciones definidas por tramos, integrar en todo $[-\pi,\pi]$ en vez de solo donde $f\neq0$.
+\item Decir que la serie converge a $f$ en un salto: converge al promedio.
+\item Para $a_0$, usar $\frac1\pi$ en lugar de $\frac1{2\pi}$ (con la convención del curso).
+\end{itemize}
+\end{ojo}
+
+\section{Ejemplos resueltos}
+
+\begin{ejemplo}[Ejemplo 1 (Clase 24). Onda cuadrada]
+$f=-1$ en $(-\pi,0)$ y $f=1$ en $(0,\pi)$. Es impar, así que $a_k=0$ y
+\[
+b_k=\frac2\pi\int_0^\pi\sin kx\,dx=\frac2{\pi k}\big(1-\cos k\pi\big)=\frac2{\pi k}\big(1-(-1)^k\big)=\begin{cases}\frac4{\pi k}&k\text{ impar}\\0&k\text{ par.}\end{cases}
+\]
+En $x=\frac\pi2$, $f$ es continua y vale 1. Dirichlet da $1=\frac4\pi(1-\frac13+\frac15-\cdots)$, es decir $\frac\pi4=1-\frac13+\frac15-\cdots$ (Leibniz). En $x=0$ la serie vale $0=\frac{1+(-1)}2$.
+\end{ejemplo}
+
+\begin{ejemplo}[Ejemplo 2 (Clase 24 y Examen 2025-2). $f(x)=|x|$]
+Es par: $b_k=0$, $a_0=\frac1\pi\int_0^\pi x\,dx=\frac\pi2$. Por partes,
+\[
+a_k=\frac2\pi\int_0^\pi x\cos kx\,dx=\frac2\pi\Big(\Big[\frac{x\sin kx}k\Big]_0^\pi-\int_0^\pi\frac{\sin kx}k\,dx\Big)=\frac2{\pi k^2}\big((-1)^k-1\big),
+\]
+es decir $a_k=-\frac4{\pi k^2}$ si $k$ es impar y $0$ si es par. Los coeficientes decaen como $1/k^2$ porque $|x|$ es continua (solo tiene esquinas).
+\end{ejemplo}
+
+\begin{ejemplo}[Ejemplo 3 (Clase 25). Parseval con la onda cuadrada]
+$\frac1{2\pi}\int f^2=1$ y $b_k^2=\frac{16}{\pi^2k^2}$ ($k$ impar). Parseval: $1=\frac12\cdot\frac{16}{\pi^2}\sum_{k\text{ impar}}\frac1{k^2}$, así que $\sum_{k\text{ impar}}\frac1{k^2}=\frac{\pi^2}8$.
+\end{ejemplo}
+
+\section{Ejercicios}
+
+\ejercicio[Clase 23]{Períodos, fase y ángulos}
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Determine el período de $\sin(2\pi\cdot150t)+\sin(2\pi\cdot250t)$ ($t$ en segundos) y el de $\cos4t+\sin6t$.
+\item Escriba $3\sin(t+\frac\pi3)$ en la forma $a\cos t+b\sin t$, y $\cos t-\sin t$ en la forma $A\sin(t+\varphi)$.
+\item Calcule el ángulo entre $f(x)=x$ y $g(x)=1$, y entre $f(x)=|x|$ y $g(x)=1$, en $[-\pi,\pi]$.
+\item Calcule $\langle\sin2x,\sin3x\rangle$ con una identidad producto-suma.
+\end{enumerate}
+
+\ejercicio[Clase 24]{Sin calcular integrales}
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Encuentre la serie de Fourier de $\sin^3x$ (use $\sin3x=3\sin x-4\sin^3x$). ¿Para qué $n$ se cumple $S_nf=f$?
+\item Use la ortogonalidad para calcular $\int_{-\pi}^\pi(2\sin x+\cos3x)^2dx$.
+\item Proyecte $f(x)=x$ sobre $\sin x$: calcule $c=\langle x,\sin x\rangle/\langle\sin x,\sin x\rangle$.
+\end{enumerate}
+
+\ejercicio[Clase 24]{La serie de $x^2$}
+Sea $f$ $2\pi$-periódica con $f(x)=x^2$ en $[-\pi,\pi]$.
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Explique por qué $b_k=0$ y calcule $a_0$ y $a_k$.
+\item Evalúe la serie en $x=\pi$ (justifique con Dirichlet) y deduzca $\sum_{k\ge1}\frac1{k^2}$.
+\end{enumerate}
+
+\ejercicio[Examen 2023-1]{Función por tramos}
+Sea $g$ $2\pi$-periódica con $g(x)=0$ si $-\pi<x<0$ y $g(x)=x^2$ si $0\le x\le\pi$. Dibuje $g$ y encuentre su serie de Fourier. ¿A qué valor converge la serie en $x=\pi$?
+
+\ejercicio[Examen 2022-1]{Función por tramos}
+Sea $g$ $2\pi$-periódica con $g(x)=0$ si $-\pi<x<\frac\pi2$ y $g(x)=x$ si $\frac\pi2\le x\le\pi$. Dibuje $g$ y encuentre su serie de Fourier. ¿A qué valores converge la serie en $x=\frac\pi2$ y en $x=\pi$?
+
+\ejercicio[Clase 24]{Señal digital}
+Una señal vale 1 en $[0,\frac T2)$ y 0 en $[\frac T2,T)$, con $T=1$ ms. Escriba $f=\frac12(1+q)$, con $q$ una onda cuadrada, y obtenga su serie. Dé las frecuencias (en Hz) y amplitudes de sus tres primeros armónicos no nulos.
+
+\ejercicio[Clase 25]{Parseval}
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Para $g(x)=2\cos3x-4\sin3x$: ¿cuánto vale $A_3$? ¿Y la potencia media $\frac1{2\pi}\int g^2$?
+\item Una temperatura es $f(t)=3+2\cos\frac{2\pi t}{24}+\sin\frac{4\pi t}{24}$ ($t$ en horas). Calcule $\frac1{24}\int_0^{24}f^2$ con Parseval. ¿Qué fracción de la potencia corresponde a las oscilaciones?
+\item ¿Qué fracción de la energía de la onda cuadrada pierde $S_5f$?
+\item Aplique Parseval a $|x|$ para obtener $\sum_{k\text{ impar}}\frac1{k^4}$ y deduzca $\sum_{k\ge1}\frac1{k^4}$.
+\end{enumerate}
+
+\ejercicio[Clase 25]{Guardar pocos armónicos}
+Una señal tiene amplitudes $A_1=0.6$, $A_2=2$, $A_4=0.2$, $A_7=1.2$ y las demás nulas. Si solo se pueden guardar 2 armónicos, ¿cuáles conviene guardar? ¿Qué error relativo se comete? (Use $\sqrt{E_{\text{descartada}}/E_{\text{total}}}$.)
+
+\ejercicio[Clase 25]{Aliasing}
+\begin{enumerate}[label=(\alph*),itemsep=0pt]
+\item Con $f_s=1000$ Hz, ¿hay aliasing para sinusoides de 450, 700, 1300 y 2000 Hz? Dé la frecuencia aparente en cada caso.
+\item Un ECG se muestrea a $f_s=250$ Hz y hay interferencia muscular de 300 Hz. ¿En qué frecuencia aparece? ¿Por qué es molesto en Chile, donde la red eléctrica es de 50 Hz?
+\item Una rueda con un rayo marcado gira a 26 vueltas/s y se filma a 24 cuadros/s. ¿Cómo se ve en pantalla?
+\end{enumerate}
+
+\newpage
+\section{Soluciones}
+
+\sol{1}
+(a) $\mathrm{mcd}(150,250)=50$, así que el período es $\frac1{50}$ s $=20$ ms. Para $\cos4t+\sin6t$, los períodos son $\frac\pi2$ y $\frac\pi3$, y el período común es $\pi$.
+(b) $3\sin(t+\frac\pi3)=\frac{3\sqrt3}2\cos t+\frac32\sin t$. Para $\cos t-\sin t$: $a=1$, $b=-1$, $A=\sqrt2$, $\varphi=\frac{3\pi}4$, es decir $\sqrt2\sin(t+\frac{3\pi}4)$.
+(c) $x$ es impar y $1$ es par, así que el ángulo es de $90^\circ$. Para $|x|$: $\langle|x|,1\rangle=\pi^2$, $\|\,|x|\,\|=\sqrt{2\pi^3/3}$, $\|1\|=\sqrt{2\pi}$, luego $\cos\theta=\frac{\sqrt3}2$ y $\theta=30^\circ$.
+(d) $\sin2x\sin3x=\frac12(\cos x-\cos5x)$, cuya integral en $[-\pi,\pi]$ es $0$.
+
+\sol{2}
+(a) $\sin^3x=\frac34\sin x-\frac14\sin3x$: $b_1=\frac34$, $b_3=-\frac14$ y el resto es $0$. $S_nf=f$ para $n\ge3$.
+(b) Por Pitágoras: $4\|\sin x\|^2+\|\cos3x\|^2=4\pi+\pi=5\pi$.
+(c) $\langle x,\sin x\rangle=2\pi$ (por partes) y $\langle\sin x,\sin x\rangle=\pi$, así que $c=2$ (coincide con $b_1$ del diente de sierra).
+
+\sol{3}
+(a) $f$ es par. $a_0=\frac1\pi\int_0^\pi x^2=\frac{\pi^2}3$ y $a_k=\frac2\pi\int_0^\pi x^2\cos kx\,dx=\frac{4(-1)^k}{k^2}$ (por partes dos veces).
+(b) $f$ es continua en $\pi$ (porque $f(-\pi)=f(\pi)$): $\pi^2=\frac{\pi^2}3+\sum\frac{4(-1)^k(-1)^k}{k^2}=\frac{\pi^2}3+4\sum\frac1{k^2}$, así que $\sum\frac1{k^2}=\frac{\pi^2}6$.
+
+\sol{4}
+Solo se integra en $[0,\pi]$. $a_0=\frac1{2\pi}\int_0^\pi x^2dx=\frac{\pi^2}6$.
+Por partes, $\int_0^\pi x^2\cos kx\,dx=\frac{2\pi(-1)^k}{k^2}$, así que $a_k=\frac{2(-1)^k}{k^2}$.
+Además $\int_0^\pi x^2\sin kx\,dx=\frac{\pi^2(-1)^{k+1}}k+\frac{2((-1)^k-1)}{k^3}$, así que
+\[
+b_k=\frac{\pi(-1)^{k+1}}{k}+\frac{2\big((-1)^k-1\big)}{\pi k^3}=\begin{cases}\dfrac\pi k-\dfrac4{\pi k^3}&k\text{ impar}\\[6pt]-\dfrac\pi k&k\text{ par.}\end{cases}
+\]
+En $x=\pi$ hay un salto (por la izquierda vale $\pi^2$ y por la derecha $0$): la serie converge a $\frac{\pi^2}2$.
+(Con la convención antigua $\frac{a_0}{\sqrt2}$ de la pauta, el término constante es el mismo, $\frac{\pi^2}6$.)
+
+\sol{5}
+$a_0=\frac1{2\pi}\int_{\pi/2}^\pi x\,dx=\frac{3\pi}{16}$. Por partes:
+\[
+a_k=\frac1\pi\Big[\frac{x\sin kx}k+\frac{\cos kx}{k^2}\Big]_{\pi/2}^{\pi}=\frac1\pi\Big(\frac{(-1)^k-\cos\frac{k\pi}2}{k^2}-\frac{\pi\sin\frac{k\pi}2}{2k}\Big),
+\]
+\[
+b_k=\frac1\pi\Big[-\frac{x\cos kx}k+\frac{\sin kx}{k^2}\Big]_{\pi/2}^{\pi}=\frac{(-1)^{k+1}}k+\frac{\cos\frac{k\pi}2}{2k}-\frac{\sin\frac{k\pi}2}{\pi k^2}.
+\]
+Por ejemplo, $a_1=-\frac1\pi-\frac12$, $b_1=1-\frac1\pi$, $a_2=\frac1{2\pi}$, $b_2=-\frac34$.
+Convergencia: en $x=\frac\pi2$ hay un salto de $0$ a $\frac\pi2$, así que converge a $\frac\pi4$. En $x=\pi$ hay un salto de $\pi$ a $0$ (pues $g(-\pi^+)=0$), así que converge a $\frac\pi2$.
+
+\sol{6}
+$q$ es la onda cuadrada de período $T$, así que $f=\frac12+\frac12\cdot\frac4\pi\sum_{k\text{ impar}}\frac1k\sin\frac{2\pi kt}{T}$. Es decir, $a_0=\frac12$ y $b_k=\frac2{\pi k}$ para $k$ impar.
+Armónicos: 1000 Hz con $A_1=\frac2\pi\approx0.637$; 3000 Hz con $0.212$; 5000 Hz con $0.127$.
+
+\sol{7}
+(a) $A_3=\sqrt{4+16}=\sqrt{20}$ y la potencia es $\frac12\cdot20=10$.
+(b) $3^2+\frac12(2^2+1^2)=11.5$. Las oscilaciones aportan $\frac{2.5}{11.5}\approx21.7\%$.
+(c) $1-\frac8{\pi^2}\big(1+\frac19+\frac1{25}\big)\approx0.067$, es decir $6.7\%$.
+(d) $\frac1{2\pi}\int x^2=\frac{\pi^2}3=\frac{\pi^2}4+\frac12\cdot\frac{16}{\pi^2}S$, con $S=\sum_{\text{impar}}\frac1{k^4}$. Entonces $S=\frac{\pi^4}{96}$. Los pares aportan $\frac1{16}$ del total, así que $\sum_{k\ge1}\frac1{k^4}=\frac{16}{15}S=\frac{\pi^4}{90}$.
+
+\sol{8}
+Energías $E_k=\frac12A_k^2$: $0.18,\ 2,\ 0.02,\ 0.72$, con total $2.92$. Conviene guardar los armónicos 2 y 7 (no el 1 y el 2). Se descarta $0.18+0.02=0.2$, y el error relativo es $\sqrt{0.2/2.92}\approx0.26$.
+
+\sol{9}
+(a) $f_s/2=500$ Hz. 450 Hz: sin aliasing. $700\mapsto300$ Hz, $1300\mapsto300$ Hz, $2000\mapsto0$ Hz (parece constante).
+(b) $|300-250|=50$ Hz: se confunde con la interferencia de la red eléctrica, que ya está en 50 Hz.
+(c) $26-24=2$: parece girar hacia adelante a 2 vueltas/s.
+
+\end{document}
